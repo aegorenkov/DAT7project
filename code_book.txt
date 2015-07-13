@@ -1,0 +1,23 @@
+User info available:
+api.GetUser
+GET users/show
+Rate Limit: 180requests/15min
+
+'created_at': Account creation date
+'description': Users own description
+'favourites_count': Number of tweets favorited by user
+'followers_count': Number of followers of user
+'friends_count': Number of friends held by user
+'geo_enabled': Whether hte user allows geo-location
+'id': The user's id number
+'lang': User's language set
+'listed_count': The number of Twitter lists on which the author of a Tweet appears.
+'location': User's location
+'name': User name
+'profile_background_color': u'E668AB',
+'protected': Whether the user account is protected or not
+'screen_name': User screen name
+'status': Last posted status
+'statuses_count': Number of statuses posted by user
+'time_zone': User's set timezone
+'utc_offset': User's time offset in seconds
