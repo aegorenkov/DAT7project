@@ -14,6 +14,7 @@ directory = u'C:\\Users\\Alexander\\Documents\\Programming\\DAT7\\personalvictor
 chdir(directory)
 
 def get_user_data(user_file, directory):
+    """Loads scraped json files from specified directory"""
     with open(directory + user_file, 'r') as f:
         random_user = json.loads(f.read())
     f.close()

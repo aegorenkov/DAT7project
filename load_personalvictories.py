@@ -28,10 +28,31 @@ class SearchStatus(list):
             self.tweet_id, 
             self.user_id, 
             self.time_stamp, 
-            self.text, 
+            unicode(self.text).encode('utf8'), 
             self.retweet_count,
             self.favorite_count])
 
+def extract_tweet_text(tweet):
+    """
+    Extract text line from html 
+    tries multiple class labels to find correct text
+    """
+    try:
+        class_label = "TweetTextSize js-tweet-text tweet-text"
+        text = tweet.find(name='p', 
+                          attrs={'class': class_label}).text
+    except AttributeError:
+        pass
+    
+    try:
+        class_label = "TweetTextSize js-tweet-text tweet-text tweet-text-rtl"
+        text = tweet.find(name='p', 
+                          attrs={'class': class_label}).text
+    except AttributeError:
+        pass
+
+    return text
+    
 def extract_retweet_count(s):
     output = s.find(name='span', 
            attrs={'class':"ProfileTweet-actionCountForAria"}).text.split()[0]
@@ -53,10 +74,10 @@ tweet_container = b.find(name="ol", attrs={'id': idname})
 tweet_list = tweet_container.find_all(name="li", 
                                       attrs = {'data-item-type':'tweet'})
                                       
-directory = r'C:\Users\Alexander\Documents\Programming\DAT7\DAT7project\'
+directory = r'C:\Users\Alexander\Documents\Programming\DAT7\DAT7project'
 chdir(directory)
                                       
-personalvictory_csv = csv.writer(open(directory + '\\data\\personalvictory.csv', 'wb+'))
+personalvictory_csv = csv.writer(open(directory + '\\data\\personalvictory.csv', 'wb'))
 personalvictory_csv.writerow([
     'tweet_id', 
     'user_id', 
@@ -65,14 +86,13 @@ personalvictory_csv.writerow([
     'retweet_count',
     'favorite_count'])
 
-for tweet in tweet_list[0:2]:
+for tweet in tweet_list:
     status = SearchStatus(
         tweet_id = tweet.find(name='div')['data-item-id'], 
         user_id = tweet.find(name='div')['data-user-id'], 
         time_stamp = tweet.find(name='span',
                                 attrs= {'class':'_timestamp js-short-timestamp '})['data-time'],
-        text = tweet.find(name='p', 
-                          attrs={'class':"TweetTextSize js-tweet-text tweet-text"}).text,
+        text = extract_tweet_text(tweet),
         retweet_count = extract_retweet_count(tweet),
         favorite_count = extract_favorites_count(tweet))
     status.save(personalvictory_csv)
