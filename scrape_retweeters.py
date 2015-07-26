@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Jul 26 16:22:10 2015
+Created on Sun Jul 26 16:42:53 2015
 
 @author: Alexander
 """
+
+
 from os import chdir
 from os import listdir
 from time import sleep
 from pandas import read_csv
 import twitter
+import json
 
 directory = r'C:\Users\Alexander\Documents\Programming\DAT7\DAT7project'
 chdir(directory)
-personal_victories = read_csv(r'data\personalvictory.csv')
-max_id = max(personal_victories.user_id)
-min_id = min(personal_victories.user_id)
-#TODO: Set man and max ranges by loading in relevant csv
-rand_users = [randrange(min_id, max_id, 1) for s in range(100)]
 
-class TwitterUserCache(object):
+class RetweetCache(object):
     '''
     Maintains a rudimentary cache 
     to avoid unnecessarily querying the twitter API
@@ -31,46 +29,56 @@ class TwitterUserCache(object):
     def load_cache(self):
         '''Extracts user ids from cache directory'''
         files = listdir(self.cache_directory)
-        cached_users = (f.split('.')[0] for f in files)
-        user_lookup = dict()
-        for user_id in cached_users:
-            user_key = str(user_id)
-            user_lookup[user_key] = True
-        self._users = user_lookup
+        cached_statuses = (f.split('.')[0] for f in files)
+        status_lookup = dict()
+        for status_id in cached_statuses:
+            status_key = str(status_id)
+            status_lookup[status_key] = True
+        self._statuses = status_lookup
     
-    def has_user(self, user_id):
+    def has_status(self, status_id):
         '''Determines whether a user id is in the cache'''
-        user_key = str(user_id)
-        return self._users.get(user_key, False)
+        status_key = str(status_id)
+        return self._statuses.get(status_key, False)
 
-class TwitterUser(object):
+class RetweetList(object):
     
-    def __init__(self, user_id, cache):
-        self.user_id = str(user_id)
+    def __init__(self, status_id, cache):
+        self.status_id = str(status_id)
         self._cache = cache
         
-    def user_cached(self):
+    def status_cached(self):
         self._cache.load_cache()
-        return self._cache.has_user(self.user_id)
+        return self._cache.has_status(self.status_id)
         
     def load(self):
-        if not self.user_cached():
+        if not self.status_cached():
             try:
-                user = api.GetUser(user_id=self.user_id, include_entities=True)
-                print user
-                self._json = user.AsJsonString()
+                retweeters = api.GetRetweeters(self.status_id)
+                print retweeters
+                self._json = json.dumps(retweeters)
                 return True
             except twitter.TwitterError:
-                self._json = '{"message": "This id is not associated with a user"}'
+                self._json = '{"message": "This id is not associated with a status"}'
                 return False
         
     def save(self):
-        if not self.user_cached():
-            file_name = self._cache.cache_directory + self.user_id + '.json'      
+        if not self.status_cached():
+            file_name = self._cache.cache_directory + self.status_id + '.json'      
             with open(file_name, 'w') as json_file:
                 json_file.write(self._json)
             json_file.close()
             return True
+
+#Load status ids
+personal_victories = read_csv(r'data\personalvictory.csv')
+status_ids = list(
+    personal_victories.tweet_id[personal_victories.retweet_count > 0])
+
+#Find unscraped id
+
+
+#Scrape list of retweeters
             
 with open('keys/consumer_key.txt','r') as f:
     consumer_key = f.read()
@@ -93,12 +101,11 @@ api = twitter.Api(
 
 print api.VerifyCredentials()
 
-random_user_cache = TwitterUserCache(directory + r'/random_users/')
-
-for x in range(150):
-    sleep(5)
-    user_id = randrange(min_id, max_id, 1)
-    user = TwitterUser(user_id, random_user_cache)
-    user.load()
-    user.save()    
-
+retweeter_cache = RetweetCache(directory + r'/retweeters/')
+#Clear out statuses that are cached
+status_ids = (s for s in status_ids if not retweeter_cache.has_status(s))
+for status_id in status_ids[14]:
+    sleep(60)
+    retweeters = RetweetList(status_id, retweeter_cache )
+    retweeters.load()
+    retweeters.save() 
