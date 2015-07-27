@@ -6,16 +6,15 @@ Created on Sun Jul 26 16:22:10 2015
 """
 from os import chdir
 from os import listdir
-from time import sleep
 from pandas import read_csv
 import twitter
+from random import randrange
 
 directory = r'C:\Users\Alexander\Documents\Programming\DAT7\DAT7project'
 chdir(directory)
 personal_victories = read_csv(r'data\personalvictory.csv')
 max_id = max(personal_victories.user_id)
 min_id = min(personal_victories.user_id)
-#TODO: Set man and max ranges by loading in relevant csv
 rand_users = [randrange(min_id, max_id, 1) for s in range(100)]
 
 class TwitterUserCache(object):
@@ -91,14 +90,14 @@ api = twitter.Api(
     access_token_secret=access_token_secret,
 )
 
-print api.VerifyCredentials()
-
-random_user_cache = TwitterUserCache(directory + r'/random_users/')
-
-for x in range(150):
-    sleep(6)
-    user_id = randrange(min_id, max_id, 1)
-    user = TwitterUser(user_id, random_user_cache)
-    user.load()
-    user.save()    
+def scrape_random_user(rate, timer):
+    if timer.ready():
+        random_user_cache = TwitterUserCache(directory + r'/random_users/')
+        user_id = randrange(min_id, max_id, 1)
+        user = TwitterUser(user_id, random_user_cache)
+        user.load()
+        user.save()
+        timer.set_next_run(rate)
+    else:
+        pass
 

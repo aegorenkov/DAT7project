@@ -69,12 +69,6 @@ class RetweetList(object):
             json_file.close()
             return True
 
-#Load status ids
-personal_victories = read_csv(r'data\personalvictory.csv')
-status_ids = list(
-    personal_victories.tweet_id[personal_victories.retweet_count > 0])
-
-
 #Scrape list of retweeters
             
 with open('keys/consumer_key.txt','r') as f:
@@ -96,13 +90,19 @@ api = twitter.Api(
     access_token_secret=access_token_secret,
 )
 
-print api.VerifyCredentials()
+def scrape_retweeter(rate, timer):
+    if timer.ready():
+        retweeter_cache = RetweetCache(directory + r'/retweeters/')
+        #Load status ids
+        personal_victories = read_csv(r'data\personalvictory.csv')
+        status_ids = list(
+            personal_victories.tweet_id[personal_victories.retweet_count > 0])
 
-retweeter_cache = RetweetCache(directory + r'/retweeters/')
-#Clear out statuses that are cached
-status_ids = [s for s in status_ids if not retweeter_cache.has_status(s)]
-for status_id in status_ids[0:45]:
-    sleep(63)
-    retweeters = RetweetList(status_id, retweeter_cache )
-    retweeters.load()
-    retweeters.save() 
+        #Clear out statuses that are cached
+        status_ids = [s for s in status_ids if not retweeter_cache.has_status(s)]
+        retweeters = RetweetList(status_ids[0], retweeter_cache )
+        retweeters.load()
+        retweeters.save() 
+        timer.set_next_run(rate)
+    else:
+        pass
