@@ -5,7 +5,6 @@ Created on Sun Jul 26 16:42:53 2015
 @author: Alexander
 """
 
-
 from os import chdir
 from os import listdir
 from time import sleep
@@ -75,8 +74,6 @@ personal_victories = read_csv(r'data\personalvictory.csv')
 status_ids = list(
     personal_victories.tweet_id[personal_victories.retweet_count > 0])
 
-#Find unscraped id
-
 
 #Scrape list of retweeters
             
@@ -103,9 +100,9 @@ print api.VerifyCredentials()
 
 retweeter_cache = RetweetCache(directory + r'/retweeters/')
 #Clear out statuses that are cached
-status_ids = (s for s in status_ids if not retweeter_cache.has_status(s))
-for status_id in status_ids[14]:
-    sleep(60)
+status_ids = [s for s in status_ids if not retweeter_cache.has_status(s)]
+for status_id in status_ids[0:45]:
+    sleep(63)
     retweeters = RetweetList(status_id, retweeter_cache )
     retweeters.load()
     retweeters.save() 

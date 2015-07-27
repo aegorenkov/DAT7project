@@ -96,7 +96,7 @@ print api.VerifyCredentials()
 random_user_cache = TwitterUserCache(directory + r'/random_users/')
 
 for x in range(150):
-    sleep(5)
+    sleep(6)
     user_id = randrange(min_id, max_id, 1)
     user = TwitterUser(user_id, random_user_cache)
     user.load()
