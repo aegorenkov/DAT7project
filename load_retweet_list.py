@@ -20,17 +20,20 @@ def get_json_data(filename, directory):
     f.close()
     return json_data
     
-def load_retweet_list():
-    status_retweeters_json = listdir(directory + r'/retweeters')
+def load_retweet_list(timer):
+    if timer.ready:
+        status_retweeters_json = listdir(directory + r'/retweeters')
 
-    retweeter_list = []
-    for status in status_retweeters_json:
-        retweeters = get_json_data(status, directory + r'/retweeters')
-        for retweeter in retweeters:
-            retweeter_list.append(retweeter)   
+        retweeter_list = []
+        for status in status_retweeters_json:
+            retweeters = get_json_data(status, directory + r'/retweeters')
+            for retweeter in retweeters:
+                retweeter_list.append(retweeter)   
         
         retweet_file = csv.writer(open(directory + '\\data\\retweeter_list.csv', 'wb'))
-        retweet_file.writerow('user_id')
+        retweet_file.writerow(['user_id'])
 
-    for retweeter in retweeter_list:
-        retweet_file.writerow(retweeter_list)
+        for retweeter in retweeter_list:
+            retweet_file.writerow([retweeter])
+    else:
+        pass
