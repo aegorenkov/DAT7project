@@ -66,11 +66,12 @@ class UserTimeline(object):
         
     def save(self):
         if not self.user_cached():
-            for key in self._json.iterkeys():
-                file_name = self._cache.cache_directory + self.user_id + '_' + str(key) +  '.json'      
-                with open(file_name, 'w') as json_file:
-                    json_file.write(self._json[key])
-                    json_file.close()
+            if type(self._json) != str:
+                for key in self._json.iterkeys():
+                    file_name = self._cache.cache_directory + self.user_id + '_' + str(key) +  '.json'      
+                    with open(file_name, 'w') as json_file:
+                        json_file.write(self._json[key])
+                        json_file.close()
             return True
 
 with open('keys/consumer_key.txt','r') as f:

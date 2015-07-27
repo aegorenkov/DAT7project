@@ -27,7 +27,7 @@ retuser_timer = ScrapeTimer()
 user_tweet_timer = ScrapeTimer()
 
 #15 minute epoch
-sec5_in_min15 = 30*60/5
+sec5_in_min15 = 15*60/5
 for sec5 in xrange(sec5_in_min15):
     sleep(5)
     #scrape_retweeter(63, retweeter_timer)
