@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jul 27 02:28:01 2015
-
-@author: Alexander
+Scrape 200 most recent statuses posted by a given Twitter user
 """
 
 from os import chdir
