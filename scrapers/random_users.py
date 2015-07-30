@@ -1,17 +1,24 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Jul 26 16:22:10 2015
+This module scrapes random users from twitter by querying the Twitter search API 
+random user IDs from a given range. 
 
-@author: Alexander
+Collects:
+ A ton, see https://dev.twitter.com/rest/reference/get/users/show
 """
+
 from os import chdir
 from os import listdir
 from pandas import read_csv
 import twitter
 from random import randrange
 
+RATE_LIMIT = 180 #requests per 15 minutes
+
 directory = r'C:\Users\Alexander\Documents\Programming\DAT7\DAT7project'
 chdir(directory)
+
+# TODO: Inject this set of dependencies and move the logic out of the scraper
 personal_victories = read_csv(r'data\personalvictory.csv')
 max_id = max(personal_victories.user_id)
 min_id = min(personal_victories.user_id)

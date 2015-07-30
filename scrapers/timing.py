@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Jul 26 21:31:35 2015
-
-@author: Alexander
+This module creates a simple timer to manage requests to various scrapers.
+By setting the next allowable time for a scraper to run we can delay scrapers
+through an event loop rather than running multiple threads.
 """
 
 from time import time

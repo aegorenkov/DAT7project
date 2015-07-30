@@ -17,7 +17,7 @@ from scrapers.retweeting_users import scrape_retweeting_user
 from scrapers.user_tweets import scrape_user_tweets
 from scrapers.timing import ScrapeTimer
 
-from load_retweet_list import load_retweet_list
+from loaders.retweet_list import load_retweet_list
 
 
 

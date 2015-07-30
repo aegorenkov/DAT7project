@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Jul 26 16:42:53 2015
+This module scrapes the retweeters of a given status.
 
-@author: Alexander
+Collects:
+    "previous_cursor": A cursor to mark the previous page of users
+    "ids": A list of user IDs
+    "previous_cursor_str":
+    "next_cursor": A cursor to mark the next page of users
+    "next_cursor_str": A string cursor to mark the next page of users
 """
 
 from os import chdir

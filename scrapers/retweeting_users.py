@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Jul 26 19:14:48 2015
+This module scrapes users from twitter by querying the Twitter search API for
+user IDs from a our list of retweeters.
 
-@author: Alexander
+Collects:
+ A ton, see https://dev.twitter.com/rest/reference/get/users/show
 """
 
 from os import chdir
