@@ -55,6 +55,9 @@ class UserTimeline(object):
             try:
                 user_timeline = api.GetUserTimeline(user_id=self.user_id, count=200)
                 print user_timeline
+                if not user_timeline:
+                    self._json = dict(('NA', 'NA'))
+                    return False
                 #Make this a dictionary with json values and status key
                 keys = [status.GetId() for status in user_timeline]
                 values = [u.AsJsonString() for u in user_timeline]
@@ -72,6 +75,10 @@ class UserTimeline(object):
                     with open(file_name, 'w') as json_file:
                         json_file.write(self._json[key])
                         json_file.close()
+            else:
+                file_name = self._cache.cache_directory + self.user_id + '_' + 'fail' +  '.json'      
+                with open(file_name, 'w') as json_file:
+                    json_file.close()
             return True
 
 with open('keys/consumer_key.txt','r') as f:
@@ -100,11 +107,12 @@ def scrape_user_tweets(rate, timer):
         personal_victory = pd.read_csv(r'data\personalvictory.csv')
         random_user = pd.read_csv(r'data\random_user.csv')
         retweet_list = pd.read_csv(r'data\retweeter_list.csv')
-        users_pv = [s for s in personal_victory.user_id if not user_timeline_cache.has_user(s)]
+        #users_pv = [s for s in personal_victory.user_id if not user_timeline_cache.has_user(s)]
         users_ru = [s for s in random_user.id if not user_timeline_cache.has_user(s)]
-        users_rl = [s for s in retweet_list.user_id if not user_timeline_cache.has_user(s)]
+        #users_rl = [s for s in retweet_list.user_id if not user_timeline_cache.has_user(s)]
 
-        user_list = list(itertools.chain(users_pv, users_ru, users_rl))
+        #user_list = list(itertools.chain(users_pv, users_ru, users_rl))
+        user_list = list(itertools.chain(users_ru))
 
         if user_list:
             user = UserTimeline(user_list[0], user_timeline_cache)

@@ -3,3 +3,10 @@ keys
 keys/*
 random_users/*
 victory_users/*
+retweeters/*
+retweeting_users/*
+twitter_search/*
+user_timelines/*
+*.html
+*.Rmd
+*.pyc
