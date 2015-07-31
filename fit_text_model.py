@@ -5,7 +5,7 @@ Created on Mon Jul 27 15:24:49 2015
 @author: Alexander
 """
 
-from os import chdir
+from os import chdir, listdir
 import pandas as pd
 from re import sub
 import numpy as np
@@ -37,17 +37,35 @@ def remove_personal_victories(text):
 def get_user(user_line):
     return user_line.get('id', 'NA')
 
-timeline_loader = UserTimelineLoader(DIRECTORY)
-tweetdeck = timeline_loader.timelines
+def df_in_chunks(df, chunksize=25000):
+    chunk = 0
+    while not df.empty:
+        yield (df[:chunksize], chunk)
+        df = df[chunksize:]
+        chunk +=1
+    
+#Check for tweet data in data folder, create it if it's not there
+if 'tweetdeck.csv' not in listdir(DIRECTORY + r'\data'):
+    timeline_loader = UserTimelineLoader(DIRECTORY)
+    tweetdeck = timeline_loader.timelines
+    dchunks = df_in_chunks(tweetdeck)
+    for dchunk in dchunks:
+        dchunk[0].to_csv(DIRECTORY + r'\data' + r'\tweetdeck'+str(dchunk[1])+'.csv', encoding = 'utf8', engine='python')
+    
+#Read in tweet data and reshape it to user-level data by appending together tweets
+filenames = [f for f in listdir(DIRECTORY + r'\data') if f.startswith('tweetdeck')]
+#Read the csv files in chunks
+tweetdeck = pd.concat(
+    [pd.read_csv(DIRECTORY + '\data' + '\\' + name, encoding='utf8', engine='python') for name in filenames], 
+     ignore_index=True)
 tweetdeck['user_id'] = tweetdeck.user.apply(get_user)
-tweetdeck = tweetdeck.groupby('user_id')['text'].sum()
+tweetdeck = tweetdeck.groupby('user_id')['text'].sum() #This actually appends text together
 tweetdeck = pd.DataFrame(tweetdeck)
 tweetdeck['user_id'] = tweetdeck.index    
 tweetdeck.text = tweetdeck.text.apply(remove_personal_victories)
 
 #Merge user categories and tweet data together
 data = pd.merge(data, tweetdeck, how='inner')
-
 
 from sklearn.cross_validation import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(data.text, data.user_type, random_state=95)
