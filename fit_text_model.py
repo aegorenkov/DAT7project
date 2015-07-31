@@ -9,6 +9,7 @@ from os import chdir
 import pandas as pd
 from re import sub
 import numpy as np
+from loaders.user_timelines import UserTimelineLoader
 
 directory = r'C:\Users\Alexander\Documents\Programming\DAT7\DAT7project'
 chdir(directory)
@@ -43,7 +44,7 @@ X_train.shape
 X_test.shape
 
 from sklearn.feature_extraction.text import CountVectorizer
-vect = CountVectorizer(stop_words='english', min_df=15, ngram_range=(1, 2), binary=True)
+vect = CountVectorizer(stop_words='english', min_df=15, ngram_range=(1, 2), binary=False, max_features = 50)
 train_dtm = vect.fit_transform(X_train)
 train_dtm
 
