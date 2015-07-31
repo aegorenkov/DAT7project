@@ -11,35 +11,46 @@ from re import sub
 import numpy as np
 from loaders.user_timelines import UserTimelineLoader
 
-directory = r'C:\Users\Alexander\Documents\Programming\DAT7\DAT7project'
-chdir(directory)
+DIRECTORY = r'C:\Users\Alexander\Documents\Programming\DAT7\DAT7project'
+chdir(DIRECTORY)
 
+#Load in data that determines user categories
 random_user = pd.read_csv(r'data/random_user.csv', nrows=999)
-retweeter = pd.read_csv(r'data/retweeter_list.csv')
-
-random_user['user_type'] = 0
-retweeter['user_type'] = 1
-#Remove any potential id collisions
 random_user.rename(columns = {'id':'user_id'}, inplace=True)
+random_user = random_user[['user_id', 'user_type']]
+random_user['user_type'] = 0
+
+retweeter = pd.read_csv(r'data/retweeter_list.csv')
+retweeter = retweeter[['user_id', 'user_type']]
+retweeter['user_type'] = 1
+
+#Remove any potential id collisions
 random_user = random_user[~random_user["user_id"].isin(retweeter["user_id"])]
 
-random_user = random_user[['user_id', 'user_type']]
-retweeter = retweeter[['user_id', 'user_type']]
 data = pd.concat([random_user, retweeter], ignore_index=True)
 
-tweetdeck = pd.read_csv(r'data/tweetdeck.csv', nrows=914)
-#tweetdeck2 = pd.read_csv(r'data/tweetdeck.csv', skiprows=945, nrows=700)
-#tweetdeck =  pd.concat([tweetdeck, tweetdeck2], ignore_index=True)
-tweetdeck.tail()
+#Load in tweet data
+#TODO: Add a way to remove personal victories tweets
 def remove_personal_victories(text):
     return sub('#?[Pp]ersonal[Vv]ictory', '', text)
-    
-tweetdeck.tweets = tweetdeck.tweets.apply(remove_personal_victories)
 
+def get_user(user_line):
+    return user_line.get('id', 'NA')
+
+timeline_loader = UserTimelineLoader(DIRECTORY)
+tweetdeck = timeline_loader.timelines
+tweetdeck['user_id'] = tweetdeck.user.apply(get_user)
+tweetdeck = tweetdeck.groupby('user_id')['text'].sum()
+tweetdeck = pd.DataFrame(tweetdeck)
+tweetdeck['user_id'] = tweetdeck.index    
+tweetdeck.text = tweetdeck.text.apply(remove_personal_victories)
+
+#Merge user categories and tweet data together
 data = pd.merge(data, tweetdeck, how='inner')
 
+
 from sklearn.cross_validation import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(data.tweets, data.user_type, random_state=95)
+X_train, X_test, y_train, y_test = train_test_split(data.text, data.user_type, random_state=95)
 X_train.shape
 X_test.shape
 
@@ -83,15 +94,15 @@ random = data[data.user_type == 0]
 retweeter = data[data.user_type == 1]
 
 # learn the vocabulary of ALL messages and save it
-vect.fit(data.tweets)
+vect.fit(data.text)
 all_features = vect.get_feature_names()
 
 # create document-term matrix of ham, then convert to a regular array
-ham_dtm = vect.transform(random.tweets)
+ham_dtm = vect.transform(random.text)
 ham_arr = ham_dtm.toarray()
 
 # create document-term matrix of spam, then convert to a regular array
-spam_dtm = vect.transform(retweeter.tweets)
+spam_dtm = vect.transform(retweeter.text)
 spam_arr = spam_dtm.toarray()
 
 # count how many times EACH token appears across ALL messages in ham_arr
