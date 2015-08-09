@@ -8,6 +8,7 @@ Created on Sun Jul 26 15:17:41 2015
 from os import chdir
 from random import randrange
 from bs4 import BeautifulSoup
+from pandas import Dataframe
 import csv
 directory = r'C:\Users\Alexander\Documents\Programming\DAT7\DAT7project\twitter_search\2'
 chdir(directory)
@@ -31,6 +32,23 @@ class SearchStatus(list):
             unicode(self.text).encode('utf8'), 
             self.retweet_count,
             self.favorite_count])
+
+class PersonalVictoryLoader(object):
+    
+    def __init__(self):
+        self._personal_victories = DataFrame()
+        
+    @staticmethod
+    def get_json_file(filename, directory):
+        """Returns single line json data as string from json files"""
+        with open(directory + '/' + filename, 'r') as json_file:
+            json_data = json_file.read()
+            json_file.close()
+        return json_data
+    
+    @property
+    def personal_vitories(self):
+        return self._personal_victories
 
 def extract_tweet_text(tweet):
     """
