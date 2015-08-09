@@ -10,24 +10,27 @@ import pandas as pd
 from re import sub
 import numpy as np
 from loaders.user_timelines import UserTimelineLoader
+from loaders.user_loader import UserLoader
 
 DIRECTORY = r'C:\Users\Alexander\Documents\Programming\DAT7\DAT7project'
 chdir(DIRECTORY)
 
 #Load in data that determines user categories
-random_user = pd.read_csv(r'data/random_user.csv', nrows=999)
-random_user.rename(columns = {'id':'user_id'}, inplace=True)
-random_user = random_user[['user_id', 'user_type']]
-random_user['user_type'] = 0
+random_users = UserLoader(DIRECTORY, 'random').users
+random_users.rename(columns = {'id':'user_id'}, inplace=True)
+random_users['user_type'] = 0
+random_users = random_users[['user_id', 'user_type']]
+
 
 retweeter = pd.read_csv(r'data/retweeter_list.csv')
-retweeter = retweeter[['user_id', 'user_type']]
+retweeters = UserLoader(DIRECTORY, 'retweeter').users
 retweeter['user_type'] = 1
+retweeter = retweeter[['user_id', 'user_type']]
 
 #Remove any potential id collisions
-random_user = random_user[~random_user["user_id"].isin(retweeter["user_id"])]
+random_users = random_user[~random_user["user_id"].isin(retweeter["user_id"])]
 
-data = pd.concat([random_user, retweeter], ignore_index=True)
+data = pd.concat([random_users, retweeter], ignore_index=True)
 
 #Load in tweet data
 #TODO: Add a way to remove personal victories tweets
