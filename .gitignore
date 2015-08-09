@@ -10,3 +10,4 @@ user_timelines/*
 *.html
 *.Rmd
 *.pyc
+.ipynb_checkpoints/*
