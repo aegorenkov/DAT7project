@@ -30,7 +30,7 @@ retweeters['user_type'] = 1
 retweeters.head()
 #Remove any potential id collisions
 random_users = random_users[~random_users['user_id'].isin(retweeters['user_id'])]
-
+random_users = random_users[random_users.friends_count >= 1]
 data = pd.concat([random_users, retweeters], ignore_index=True)
 data.head()
 
@@ -63,7 +63,17 @@ filenames = [f for f in listdir(DIRECTORY + r'\data') if f.startswith('tweetdeck
 tweetdeck = pd.concat(
     [pd.read_csv(DIRECTORY + '\data' + '\\' + name, encoding='utf8', engine='python') for name in filenames], 
      ignore_index=True)
+     
+##PROBLEM! need to convert to dict or json object to user get
+timeline_loader = UserTimelineLoader(DIRECTORY)
+tweetdeckcopy = timeline_loader.timelines
+tweetdeck = tweetdeckcopy
 tweetdeck['user_id'] = tweetdeck.user.apply(get_user)
+personal_victories = pd.read_csv(r'data/personalvictory.csv')
+tweet_hash = dict([(row,1) for row in personal_victories.tweet_id])
+tweetdeck = tweetdeck[~tweetdeck.id.isin(tweet_hash)]
+tweetdeck = tweetdeck[tweetdeck.retweeted_status.isnull()]
+
 tweetdeck = tweetdeck.groupby('user_id')['text'].sum() #This actually appends text together
 tweetdeck = pd.DataFrame(tweetdeck)
 tweetdeck['user_id'] = tweetdeck.index    
@@ -78,7 +88,7 @@ X_train.shape
 X_test.shape
 
 from sklearn.feature_extraction.text import CountVectorizer
-vect = CountVectorizer(stop_words='english', min_df=15, ngram_range=(1, 2), binary=False, max_features = 50)
+vect = CountVectorizer(stop_words='english', min_df=15, ngram_range=(1, 2), binary=False, max_features = 5000)
 train_dtm = vect.fit_transform(X_train)
 train_dtm
 
@@ -143,4 +153,4 @@ all_token_counts['spam'] = all_token_counts.spam + 1
 
 # calculate ratio of spam-to-ham for each token
 all_token_counts['spam_ratio'] = all_token_counts.spam / all_token_counts.ham
-all_token_counts.sort('spam_ratio')
+all_token_counts.sort('spam_ratio', asceding=False)
